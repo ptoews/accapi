@@ -88,7 +88,7 @@ class ThreadedSocketReader(object):
 
             # Wait until there's enough data to fulfill the request
             if len(self._data) < size:
-                
+
                 # No data after timeout
                 if not self._dataLock.wait(timeout):
                     data = None
@@ -153,6 +153,7 @@ class AccClient(object):
         # Callbacks
         self._onConnectionStateChange = Observable()
         self._onTrackDataUpdate = Observable()
+        self._onEntryListUpdate = Observable()
         self._onEntryListCarUpdate = Observable()
         self._onRealtimeUpdate = Observable()
         self._onRealtimeCarUpdate = Observable()
@@ -203,6 +204,10 @@ class AccClient(object):
     @property
     def onTrackDataUpdate(self):
         return self._onTrackDataUpdate
+
+    @property
+    def onEntryListUpdate(self):
+        return self._onEntryListUpdate
 
     @property
     def onEntryListCarUpdate(self):
@@ -283,6 +288,8 @@ class AccClient(object):
     def _receive_entry_list(self):
         entryList = EntryList.receive(self._receive)
         self._cars = {i: self._cars[i] if i in self._cars else -1 for i in entryList.carIndices}
+        for callback in self._onEntryListUpdate.callbacks:
+            callback(Event(self, entryList.carIndices))
 
     def _receive_entry_list_car(self):
         args = EntryListCar.receive_args(self._receive)
