@@ -411,12 +411,15 @@ class AccClient(object):
         try:
             while not self._stopSignal:
                 try:
-                    messageTypeData = self._reader.read(1, timeout=0.1)
+                    messageTypeData = self._reader.read(1, timeout=0.5)
                 except (ConnectionResetError, EndOfStreamError):
                     self._update_connection_state("lost")
                     break
                 if messageTypeData is None:
+                    self._update_connection_state("timeout")
                     continue
+                else:
+                    self._update_connection_state("established")
                 (messageType,) = struct.unpack("B", messageTypeData)
                 self._receiveMethods[messageType]()
         finally:
