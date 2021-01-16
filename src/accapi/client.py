@@ -33,7 +33,7 @@ class ThreadedSocketReader(object):
         size (int): How much data has been read so far.
     """
 
-    def __init__(self, source: socket.socket, chunkSize: int = 1024):
+    def __init__(self, source: socket.socket, chunkSize: int = 2048):
         self._source = source
         self._chunkSize = chunkSize
         self._data = bytearray()
